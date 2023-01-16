@@ -31,7 +31,7 @@ const SignIn = () => {
      if (token) {
           return  navigate(from, { replace: true })
         }
-    }, [ token,from,navigate,user,guser])
+    }, [ token,from,navigate  ])
 
 
 

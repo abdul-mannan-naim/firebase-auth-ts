@@ -1,4 +1,7 @@
+import { signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import auth from '../../firebase.init';
 import DeleteProduct from './DeleteProduct';
 import Product from './Product';
 import UpdateProduct from './UpdateProduct';
@@ -7,10 +10,23 @@ const Products = () => {
 
     const [products, setProducts] = useState([])
     const [manages, setManages] = useState(null)
+    const navigate =useNavigate()
 
     useEffect(() => {
-        fetch("http://localhost:5000/getProduct")
-            .then(res => res.json())
+        fetch("http://localhost:5000/getProduct",{
+            method:"GET",
+            headers:{
+                "content-type": "application/json",
+                authorization: `Bearer ${localStorage.getItem('accessToken')}`
+            }
+        })
+            .then(res => {
+                if(res.status ===403 || res.status ===404){
+                    signOut(auth)
+                    localStorage.removeItem('accessToken')
+                    navigate('/')
+                }
+               return res.json()})
             .then(data => setProducts(data))
     }, [products])
 

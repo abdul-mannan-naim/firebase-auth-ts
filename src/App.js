@@ -32,10 +32,10 @@ function App() {
           <Route path='/signIn' element={<SignIn></SignIn>} ></Route>
 
           <Route path='/dashboard' element={<Dashboard></Dashboard>} > 
-            <Route index element={<Products></Products>} ></Route>
+            <Route index element={<MyOrders></MyOrders>} ></Route>
+            <Route path='/dashboard/myOrders' element={<MyOrders></MyOrders>} ></Route>
             <Route path='/dashboard/products' element={<Products></Products>} ></Route>
             <Route path='/dashboard/addProduct' element={<AddProduct></AddProduct>} ></Route>
-            <Route path='/dashboard/myOrders' element={<MyOrders></MyOrders>} ></Route>
             <Route path='/dashboard/users' element={<RequireAdmin><AllUser></AllUser></RequireAdmin>} ></Route>
           </Route>
           <Route path='/logIn' element={<Login></Login>} ></Route>

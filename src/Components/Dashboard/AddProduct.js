@@ -1,50 +1,62 @@
+import { signOut } from 'firebase/auth';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import auth from '../../firebase.init';
 
 const AddProduct = () => {
-    const { register,reset, handleSubmit, watch, formState: { errors } } = useForm();
-    const imagebbKey ="8cf4df2928da7fe0256bcbc04767a5c3"    
+    const { register, reset, handleSubmit, watch, formState: { errors } } = useForm();
+    const navigate = useNavigate()
+    const imagebbKey = "8cf4df2928da7fe0256bcbc04767a5c3"
 
 
     const onSubmit = data => {
-const price=parseInt(data.price)
+        const price = parseInt(data.price)
         // console.log(data.file[0]);
-        const image= data.file[0]
+        const image = data.file[0]
         const formData = new FormData();
         formData.append('image', image);
-        fetch(`https://api.imgbb.com/1/upload?key=${imagebbKey}`,{
-            method:"POST", 
-            body:formData
+        fetch(`https://api.imgbb.com/1/upload?key=${imagebbKey}`, {
+            method: "POST",
+            body: formData
         })
-        .then(res=>res.json())
-        .then(result=>{
-            console.log(result)
-            if(result.success){
-                const img =result.data.url;
-                const product ={
-                    name:data.name,
-                    price: price,
-                    quality:data.quality,
-                    img:img,
-                    description:data.description 
+            .then(res => res.json())
+            .then(result => {
+                console.log(result)
+                if (result.success) {
+                    const img = result.data.url;
+                    const product = {
+                        name: data.name,
+                        price: price,
+                        quality: data.quality,
+                        img: img,
+                        description: data.description
+                    }
+                    fetch("http://localhost:5000/product", {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/json",
+                            authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                        },
+                        body: JSON.stringify(product)
+                    })
+                        .then(res => {
+                            if (res.status === 403 || res.status === 404) {
+                                signOut(auth)
+                                localStorage.removeItem('accessToken')
+                                navigate('/')
+                            }
+                            return res.json()
+                        })
+                        .then(data => {
+                            console.log(data, "product added")
+                            reset()
+                        })
                 }
-                fetch("http://localhost:5000/product",{
-                    method:"POST",
-                    headers:{
-                        "content-type" : "application/json"
-                    },
-                    body:JSON.stringify(product)
-                })
-                .then(res=>res.json())
-                .then(data=>{
-                    console.log(data,"product added")
-                    reset()
-                })
-            }
-        })
-        .catch((error)=>{
-            console.error("Error",error);
-        })
+            })
+            .catch((error) => {
+                console.error("Error", error);
+            })
     };
     return (
         <div>

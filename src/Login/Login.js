@@ -14,7 +14,7 @@ const Login = () => {
         error,
     ] = useSignInWithEmailAndPassword(auth);
 
-    const { register, handleSubmit, watch, formState: { errors } } = useForm(); 
+    const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
     const [signInWithGoogle, guser, gloading, gerror] = useSignInWithGoogle(auth);
 
@@ -26,14 +26,13 @@ const Login = () => {
 
     let navigate = useNavigate();
     let location = useLocation();
-    let CustomError 
     let from = location.state?.from?.pathname || "/";
 
     useEffect(() => {
         if (token) {
-          return  navigate(from, { replace: true })
+            return navigate(from, { replace: true })
         }
-    }, [token,from,navigate,user,guser])
+    }, [token, from, navigate])
 
     if (error || gerror) {
         return (
@@ -47,7 +46,9 @@ const Login = () => {
         return <Loading></Loading>;
     }
 
-
+    if (loading && token || gloading && token) {
+        return navigate(from, { replace: true })
+    }
 
     return (
         <div>

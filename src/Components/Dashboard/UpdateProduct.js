@@ -1,10 +1,14 @@
+import { signOut } from 'firebase/auth';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import auth from '../../firebase.init';
 
 const UpdateProduct = ({ manages, setManages }) => {
     const { name, quality, price, description, _id, img } = manages;
 
     const { register, reset, handleSubmit, watch, formState: { errors } } = useForm();
+    const navigate =useNavigate()
     const imagebbKey = "8cf4df2928da7fe0256bcbc04767a5c3";
 
     const onSubmit = data => {
@@ -14,7 +18,7 @@ const UpdateProduct = ({ manages, setManages }) => {
         const formData = new FormData();
         formData.append('image', image);
         fetch(`https://api.imgbb.com/1/upload?key=${imagebbKey}`, {
-            method: "POST",
+            method: "POST", 
             body: formData,
         })
             .then(res => res.json())
@@ -32,11 +36,18 @@ const UpdateProduct = ({ manages, setManages }) => {
                     fetch(`http://localhost:5000/update/${_id}`, {
                         method: "PUT",
                         headers: {
-                            "content-type": "application/json"
+                            "content-type": "application/json",
+                            authorization: `Bearer ${localStorage.getItem('accessToken')}`
                         },
                         body: JSON.stringify(product)
                     })
-                        .then(res => res.json())
+                        .then(res => {
+                            if (res.status === 403 || res.status === 404) {
+                                signOut(auth)
+                                localStorage.removeItem('accessToken')
+                                navigate('/')
+                            }
+                           return res.json()})
                         .then(data => {
                             console.log(data)
                             setManages(null)

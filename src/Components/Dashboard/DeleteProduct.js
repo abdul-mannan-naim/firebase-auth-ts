@@ -1,16 +1,27 @@
 import React from 'react';
+import { signOut } from 'firebase/auth';
+import auth from '../../firebase.init';
+import { useNavigate } from 'react-router-dom';
 
 const DeleteProduct = ({ manages }) => {
     const { name, quality, price, _id, description } = manages;
+    let navigate = useNavigate()
 
     const confirmHandling = async () => {
         await fetch(`http://localhost:5000/delete/${_id}`, {
             method: "delete",
             headers: {
-                "content-type": "application/json"
+                "content-type": "application/json",
+                authorization: `Bearer ${localStorage.getItem('accessToken')}`
             }
         })
-            .then(res => res.json())
+            .then(res => {
+                if (res.status === 403 || res.status === 404) {
+                    signOut(auth)
+                    localStorage.removeItem('accessToken')
+                    navigate('/')
+                }
+               return res.json()})
             .then(data => {
                 console.log(data);
                 

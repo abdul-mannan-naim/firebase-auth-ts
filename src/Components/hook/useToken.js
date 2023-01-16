@@ -1,10 +1,6 @@
-import { signOut } from "firebase/auth";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import auth from "../../firebase.init";
+import { useEffect, useState } from "react"; 
 const useToken = (user) => {
-    const [token, setToken] = useState('')
-    const navigate = useNavigate()
+    const [token, setToken] = useState('') 
     useEffect(() => {
         const email = user?.user?.email;
         const currentUser = { email: email };
@@ -16,21 +12,14 @@ const useToken = (user) => {
                 },
                 body: JSON.stringify(currentUser)
             })
-                .then(res => {
-                    if (res.status === 403 || res.status === 404) {
-                        signOut(auth)
-                        localStorage.removeItem("accessToken")
-                        navigate('/')
-                    }
-                    return res.json()
-                })
+                .then(res => res.json())
                 .then(data => {
                     const accessToken = data.token;
                     localStorage.setItem('accessToken', accessToken)
                     setToken(accessToken)
                 })
         }
-    }, [user])
+    }, [user,])
     return [token];
 }
 export default useToken;
