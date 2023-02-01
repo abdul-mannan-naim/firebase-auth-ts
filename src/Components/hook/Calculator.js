@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './style.css';
+ 
 import ResultComponent from './ResultComment';
 import KeyPadComponent from './KeyPadComment';
 

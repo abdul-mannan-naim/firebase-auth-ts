@@ -1,5 +1,6 @@
 import { signOut } from 'firebase/auth';
 import React from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import auth from '../../firebase.init';
@@ -8,17 +9,19 @@ const UpdateProduct = ({ manages, setManages }) => {
     const { name, quality, price, description, _id, img } = manages;
 
     const { register, reset, handleSubmit, watch, formState: { errors } } = useForm();
-    const navigate =useNavigate()
+    const navigate = useNavigate()
     const imagebbKey = "8cf4df2928da7fe0256bcbc04767a5c3";
+    const [user, loading, error] = useAuthState(auth);
 
     const onSubmit = data => {
-        const price =parseInt(data.price)
+        const price = parseInt(data.price)
+        const totalQuantity =data.quantity;
         console.log(data)
         let image = data.file[0]
         const formData = new FormData();
         formData.append('image', image);
         fetch(`https://api.imgbb.com/1/upload?key=${imagebbKey}`, {
-            method: "POST", 
+            method: "POST",
             body: formData,
         })
             .then(res => res.json())
@@ -26,10 +29,19 @@ const UpdateProduct = ({ manages, setManages }) => {
                 console.log(result);
                 if (result.success) {
                     const img = result.data.url;
+                    let rating = 5
                     const product = {
                         name: data.name,
                         price: price,
                         quality: data.quality,
+                        rating: [
+                            {
+                                rating: rating,
+                                rater: user.email,
+                            }
+                        ],
+                        totalOrder:[0],
+                        totalQuantity: totalQuantity,
                         description: data.description,
                         img: img
                     }
@@ -47,7 +59,8 @@ const UpdateProduct = ({ manages, setManages }) => {
                                 localStorage.removeItem('accessToken')
                                 navigate('/')
                             }
-                           return res.json()})
+                            return res.json()
+                        })
                         .then(data => {
                             console.log(data)
                             setManages(null)
@@ -81,8 +94,8 @@ const UpdateProduct = ({ manages, setManages }) => {
                                                 message: "implement The product Name"
                                             },
                                             minLength: {
-                                                value: 6,
-                                                message: "Name Should be 6 Character"
+                                                value: 1,
+                                                message: "Name Should be 1 Character"
                                             }
 
                                         })}
@@ -131,6 +144,20 @@ const UpdateProduct = ({ manages, setManages }) => {
                                     <label  >    {errors.price?.type === "minLength" && <span> {errors.price.message} </span>}</label>
 
 
+                                </div>
+
+                                <div>
+                                    <label htmlFor="">  </label>
+                                    <input type="number" placeholder='Product Quantity '
+                                        className='input input-bordered w-full max-w-lg my-2'
+                                        {...register("quantity", {
+                                            minLength: {
+                                                value: 1,
+                                                message: "Quantity Should be 1 Character"
+                                            }
+                                        })}
+                                    />
+                                    <label >{errors.quality?.type === "minLength" && <span> {errors.quality.message} </span>}</label>
                                 </div>
 
                                 <div className='my-2'>

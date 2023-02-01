@@ -1,12 +1,12 @@
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import auth from '../../firebase.init';
 import Loading from '../Hooks/Loading';
 
 
-const MyOrders = () => { 
+const MyOrders = () => {
     const [myOrders, setMyOrders] = useState([])
     const [user, loading, error] = useAuthState(auth);
     let navigate = useNavigate()
@@ -29,7 +29,7 @@ const MyOrders = () => {
                     return res.json()
                 })
                 .then(data => {
-                    setMyOrders(data); 
+                    setMyOrders(data);
                 })
         }
     }, [myOrders, user])
@@ -47,7 +47,7 @@ const MyOrders = () => {
             <div>
                 <div>
                     <div class="overflow-x-auto hidden lg:block  w-full">
-                        <table class="table w-full "> 
+                        <table class="table w-full ">
                             <thead>
                                 <tr className=' '>
                                     <th>
@@ -57,45 +57,54 @@ const MyOrders = () => {
                                     </th>
                                     <th>Name <br />
                                         Quality
-                                    </th> 
-                                    <th>Description  </th>
+                                    </th>
+                                    <th> Quantity x Price <br />
+                                        Ordered Time </th>
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody className='  '> 
+                            <tbody className='  '>
                                 {
-                                    myOrders.map(a => <tr>
-                                        <th>
-                                            <label>
-                                                <input type="checkbox" class="checkbox" />
-                                            </label>
-                                        </th>
-                                        <td>
-                                            <div class="flex items-center space-x-3">
-                                                <div class="avatar">
-                                                    <div class="mask mask-squircle w-12 h-12">
-                                                        <img src={a.img} alt="Avatar Tailwind CSS Component" />
+                                    myOrders.map(a =>
+                                        <tr >
+                                            <th className={`bg-${a.paid ? "info" : ""}`}>
+                                                <label>
+                                                    <p> {a.quantity} </p>
+                                                    <input type="checkbox" class="checkbox" />
+                                                </label>
+                                            </th>
+                                            <td className={`bg-${a.paid ? "info" : ""}`}>
+                                                <div class="flex items-center space-x-3">
+                                                    <div class="avatar">
+                                                        <div class="mask mask-squircle w-12 h-12">
+                                                            <img src={a.img} alt="Avatar Tailwind CSS Component" />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-bold"> {a.name} </div>
+                                                        <div class="text-sm opacity-50"> {a.quality}  </div>
+                                                           {(a.price && a.transactionId) && <span class="  text-warning font-bold ">  {a.transactionId} </span>}  
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    <div class="font-bold"> {a.name} </div>
-                                                    <div class="text-sm opacity-50"> {a.quality}  </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        {/* <td>
+                                            </td>
+                                            {/* <td>
                                             {a.user}
                                             <br />
                                             <span class="badge badge-ghost badge-sm"> {a.quantity} </span>
                                         </td> */}
-                                        <td> {a.description} </td>
-                                        <th>
-                                            <button class="btn btn-ghost btn-xs">details</button>
-                                        </th>
-                                    </tr>)
+                                            <td className={`bg-${a.paid ? "info" : ""}`} >
+                                                 <p> {a.price}</p>
+                                                <p>{a.exactTime}</p>
+                                            </td>
+                                            <th  className={`bg-${a.paid ? "info" : ""}`} >
+                                                <p> {a.date} </p>
+                                                {(a.price && !a.paid) && <Link to={`/dashboard/payment/${a._id}`} > <button class="btn btn-accent btn-xs">Pay </button></Link>}
+                                                {(a.price && a.paid) && <span class="  text-warning font-bold text-xl ">Paid </span>}
+                                            </th>
+                                        </tr>)
                                 }
 
-                            </tbody> 
+                            </tbody>
                         </table>
                     </div>
                     <div>

@@ -1,5 +1,6 @@
 import { signOut } from 'firebase/auth';
 import React from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import auth from '../../firebase.init';
@@ -8,10 +9,11 @@ const AddProduct = () => {
     const { register, reset, handleSubmit, watch, formState: { errors } } = useForm();
     const navigate = useNavigate()
     const imagebbKey = "8cf4df2928da7fe0256bcbc04767a5c3"
-
+    const [user, loading, error] = useAuthState(auth);
 
     const onSubmit = data => {
         const price = parseInt(data.price)
+        const totalQuantity =data.quantity;
         // console.log(data.file[0]);
         const image = data.file[0]
         const formData = new FormData();
@@ -25,10 +27,20 @@ const AddProduct = () => {
                 console.log(result)
                 if (result.success) {
                     const img = result.data.url;
-                    const product = {
+                    let rating = 5
+
+                    const product = { 
                         name: data.name,
                         price: price,
                         quality: data.quality,
+                        rating:[
+                            {
+                                rating:rating,
+                                rater:user.email,
+                            }
+                        ], 
+                        totalOrder:[0],
+                        totalQuantity: totalQuantity,
                         img: img,
                         description: data.description
                     }
@@ -75,8 +87,8 @@ const AddProduct = () => {
                                         message: "implement The product Name"
                                     },
                                     minLength: {
-                                        value: 6,
-                                        message: "Name Should be 6 Character"
+                                        value: 1,
+                                        message: "Name Should be 1 Character"
                                     }
 
                                 })}
@@ -103,6 +115,19 @@ const AddProduct = () => {
                             <label >{errors.quality?.type === "required" && <span> {errors.quality.message} </span>}</label>
                             <label >{errors.quality?.type === "minLength" && <span> {errors.quality.message} </span>}</label>
 
+                        </div>
+                        <div>
+                            <label htmlFor="">  </label>
+                            <input type="number" placeholder='Product Quantity '
+                                className='input input-bordered w-full max-w-lg my-2'
+                                {...register("quantity", { 
+                                    minLength: {
+                                        value: 1,
+                                        message: "Quantity Should be 1 Character"
+                                    } 
+                                })}
+                            /> 
+                            <label >{errors.quality?.type === "minLength" && <span> {errors.quality.message} </span>}</label> 
                         </div>
 
                         <div>

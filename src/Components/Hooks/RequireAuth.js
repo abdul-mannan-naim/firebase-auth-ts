@@ -7,7 +7,7 @@ import Loading from './Loading';
 const RequireAuth = ({ children }) => {
 
     const [user, loading, error] = useAuthState(auth);
-
+    // const emailVerified =user.emailVerified
     let location = useLocation();
     // loading sobar upore dite hobe evabe, nahole- RequireAuth eer vitore thaka children route k (live web site a) reload korle loging page e chole jabe........
     if (loading) {
@@ -16,7 +16,9 @@ const RequireAuth = ({ children }) => {
     if (!user) {
         return <Navigate to="/logIn" state={{ from: location }} replace ></Navigate>
     }
-
+    // if (!emailVerified) {
+    //     return <Navigate to="/logIn" state={{ from: location }} replace ></Navigate>
+    // }
 
     return children;
 };
